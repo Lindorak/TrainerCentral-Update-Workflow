@@ -4,7 +4,7 @@ addEventListener('fetch', event => {
 
 async function handleRequest(request) {
   const KV_NAMESPACE_ID = globalThis.KV_NAMESPACE_ID; // Secret stored in Cloudflare
-  const CF_ACCOUNT_ID = '<YOUR_ACCOUNT_ID>'; // Replace with your Cloudflare Account ID
+  const CF_ACCOUNT_ID = globalThis.CF_ACCOUNT_ID; // Secret Account ID stored in Cloudflare
   const CF_API_TOKEN = globalThis.CF_API_TOKEN; // Secret API token for Cloudflare KV REST API
 
   const url = new URL(request.url);
