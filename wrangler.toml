@@ -1,6 +1,7 @@
 name = "trainercentral-update-workflow"
 type = "javascript"
 main = "src/index.js"
+compatibility_date = "2025-01-19"
 
 workers_dev = true
 kv_namespaces = [
