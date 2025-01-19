@@ -3,20 +3,24 @@ addEventListener('fetch', event => {
 });
 
 async function handleRequest(request) {
-  const TRAINERCENTRAL_API_KEY = globalThis.TRAINERCENTRAL_API_KEY; // TrainerCentral API Key
-  const OPENAI_API_KEY = globalThis.OPENAI_API_KEY; // OpenAI API Key
-  const TRAINERCENTRAL_BASE_URL = 'https://api.trainercentral.com/v1'; // TrainerCentral API Base URL
-  const KV_NAMESPACE_ID = globalThis.KV_NAMESPACE_ID; // Optional: KV Namespace for caching
+  const TRAINERCENTRAL_API_KEY = globalThis.TRAINERCENTRAL_API_KEY;
+  const OPENAI_API_KEY = globalThis.OPENAI_API_KEY;
+  const TRAINERCENTRAL_BASE_URL = 'https://api.trainercentral.com/v1';
+  const KV_NAMESPACE_ID = globalThis.KV_NAMESPACE_ID;
 
   const url = new URL(request.url);
   const path = url.pathname;
 
   try {
     if (path === '/command') {
+      if (request.method !== 'POST') {
+        return new Response('Only POST requests are allowed for /command.', { status: 405 });
+      }
+
       const body = await request.json();
       const command = body.command;
 
-      // Step 1: Use OpenAI to analyze the command and determine intent
+      // Analyze the command and determine intent using OpenAI
       const intentResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -32,17 +36,31 @@ async function handleRequest(request) {
       const intentData = await intentResponse.json();
       const intent = intentData.choices[0].message.content;
 
-      // Example: If the intent involves expanding materials
+      // Example: Handle intent to expand materials
       if (intent.includes('expand materials')) {
-        const courseName = extractCourseName(command); // Helper function to extract course name
-        const data = await fetchCourseData(TRAINERCENTRAL_API_KEY, TRAINERCENTRAL_BASE_URL, courseName);
-
-        // Optional: Cache data in KV namespace
-        if (KV_NAMESPACE_ID) {
-          await cacheDataInKV(data, 'courseData'); // Helper function to cache data
+        const courseName = extractCourseName(command);
+        if (!courseName) {
+          return new Response('Invalid command. Could not extract course name.', { status: 400 });
         }
 
-        // Step 2: Process materials and expand them using OpenAI
+        // Try to fetch cached data
+        const cachedData = await fetchFromKV('courseData');
+        if (cachedData) {
+          console.log('Returning cached data from KV.');
+          return new Response(JSON.stringify(cachedData), {
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Fetch data from TrainerCentral
+        const data = await fetchCourseData(TRAINERCENTRAL_API_KEY, TRAINERCENTRAL_BASE_URL, courseName);
+
+        // Cache the data
+        if (KV_NAMESPACE_ID) {
+          await cacheDataInKV(data, 'courseData');
+        }
+
+        // Expand materials using OpenAI
         const expandedMaterials = await expandMaterialsWithOpenAI(data.materials, OPENAI_API_KEY);
 
         return new Response(JSON.stringify(expandedMaterials), {
@@ -60,19 +78,46 @@ async function handleRequest(request) {
   }
 }
 
-// Helper function: Extract course name from command
+// Helper: Extract course name from the command
 function extractCourseName(command) {
   const match = command.match(/course '(.*?)'/);
   return match ? match[1] : null;
 }
 
-// Helper function: Fetch all course, lesson, and material data
+// Helper: Fetch data from KV namespace
+async function fetchFromKV(key) {
+  const kvUrl = `https://api.cloudflare.com/client/v4/accounts/${globalThis.CF_ACCOUNT_ID}/storage/kv/namespaces/${globalThis.KV_NAMESPACE_ID}/values/${key}`;
+  const response = await fetch(kvUrl, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${globalThis.CF_API_TOKEN}` },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  return null;
+}
+
+// Helper: Cache data in KV namespace
+async function cacheDataInKV(data, key) {
+  const kvUrl = `https://api.cloudflare.com/client/v4/accounts/${globalThis.CF_ACCOUNT_ID}/storage/kv/namespaces/${globalThis.KV_NAMESPACE_ID}/values/${key}`;
+  await fetch(kvUrl, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${globalThis.CF_API_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+// Helper: Fetch all course, lesson, and material data
 async function fetchCourseData(apiKey, baseUrl, courseName) {
   const coursesResponse = await fetch(`${baseUrl}/courses`, {
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers: { Authorization: `Bearer ${apiKey}` },
   });
 
   const courses = await coursesResponse.json();
@@ -84,9 +129,7 @@ async function fetchCourseData(apiKey, baseUrl, courseName) {
 
   const lessonsResponse = await fetch(`${baseUrl}/courses/${course.id}/lessons`, {
     method: 'GET',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers: { Authorization: `Bearer ${apiKey}` },
   });
 
   const lessons = await lessonsResponse.json();
@@ -95,9 +138,7 @@ async function fetchCourseData(apiKey, baseUrl, courseName) {
   for (const lesson of lessons) {
     const materialsResponse = await fetch(`${baseUrl}/lessons/${lesson.id}/materials`, {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
+      headers: { Authorization: `Bearer ${apiKey}` },
     });
 
     const lessonMaterials = await materialsResponse.json();
@@ -107,21 +148,7 @@ async function fetchCourseData(apiKey, baseUrl, courseName) {
   return { course, lessons, materials };
 }
 
-// Helper function: Cache data in KV namespace
-async function cacheDataInKV(data, key) {
-  const kvUrl = `https://api.cloudflare.com/client/v4/accounts/${globalThis.CF_ACCOUNT_ID}/storage/kv/namespaces/${globalThis.KV_NAMESPACE_ID}/values/${key}`;
-
-  await fetch(kvUrl, {
-    method: 'PUT',
-    headers: {
-      Authorization: `Bearer ${globalThis.CF_API_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-}
-
-// Helper function: Use OpenAI to expand materials
+// Helper: Expand materials with OpenAI
 async function expandMaterialsWithOpenAI(materials, apiKey) {
   const expandedMaterials = [];
 
