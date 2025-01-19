@@ -1,5 +1,3 @@
-Here’s the GitHub-friendly version of the README.md with proper markdown formatting for headings, subheadings, and tables:
-
 # TrainerCentral Update Workflow
 
 This Cloudflare Worker project enables dynamic interaction with the **TrainerCentral API** to fetch and manage course, lesson, and material data. The Worker processes natural language commands (like "expand on all materials in each lesson of course 'X'") using **OpenAI GPT-4**, caches data in **KV namespaces**, and dynamically performs actions such as expanding course materials.
@@ -41,9 +39,10 @@ Processes a command in natural language to fetch, cache, and expand on course ma
 {
   "command": "Expand on all materials in each of the lessons in course 'Introduction to Programming'."
 }
+```
 
 Example Response
-
+```
 [
   {
     "materialId": "material123",
@@ -51,6 +50,7 @@ Example Response
     "expanded": "This is a detailed and expanded explanation of the brief introduction provided earlier..."
   }
 ]
+```
 
 Setup Instructions
 
@@ -61,19 +61,24 @@ Setup Instructions
 
 2. Clone the Repository
 
+```
 git clone <your-repository-url>
 cd trainercentral-update-workflow
+```
 
 3. Install Wrangler
 
 Install the Cloudflare Wrangler CLI globally:
 
+```
 npm install -g wrangler
+```
 
 4. Configure wrangler.toml
 
 Update the wrangler.toml file with your KV namespace binding and compatibility date:
 
+```
 name = "trainercentral-update-workflow"
 main = "src/index.js"
 workers_dev = true
@@ -82,6 +87,7 @@ compatibility_date = "2025-01-19"
 kv_namespaces = [
   { binding = "KV", id = "your-kv-namespace-id" }
 ]
+```
 
 Replace your-kv-namespace-id with your actual KV Namespace ID.
 
@@ -89,17 +95,21 @@ Replace your-kv-namespace-id with your actual KV Namespace ID.
 
 Add the necessary secrets for secure access:
 
+```
 wrangler secret put TRAINERCENTRAL_API_KEY
 wrangler secret put OPENAI_API_KEY
 wrangler secret put KV_NAMESPACE_ID
 wrangler secret put CF_API_TOKEN
 wrangler secret put CF_ACCOUNT_ID
+```
 
 6. Deploy the Worker
 
 Deploy the Worker to Cloudflare:
 
+```
 npx wrangler deploy
+```
 
 How It Works
 
@@ -127,9 +137,11 @@ How It Works
 Example Workflow
 	1.	User sends a command:
 
+```
 {
   "command": "Expand on all materials in each of the lessons in course 'X'."
 }
+```
 
 
 	2.	Worker processes the command:
@@ -139,6 +151,7 @@ Example Workflow
 	•	Expands materials using OpenAI GPT.
 	3.	Response:
 
+```
 [
   {
     "materialId": "material123",
@@ -146,6 +159,7 @@ Example Workflow
     "expanded": "This is a detailed and expanded explanation of the brief introduction provided earlier..."
   }
 ]
+```
 
 Environment Variables
 
@@ -173,7 +187,9 @@ Logs and Debugging
 
 To monitor logs, use:
 
+```
 npx wrangler tail
+```
 
 This streams logs for debugging errors or monitoring request flow.
 
@@ -188,16 +204,3 @@ Future Enhancements
 License
 
 MIT License
-
----
-
-### **How to Use It**
-1. Copy the content above.
-2. Paste it into a `README.md` file in the root of your repository.
-3. Commit and push the changes:
-   ```bash
-   git add README.md
-   git commit -m "Add README documentation"
-   git push origin main
-
-This will render beautifully in GitHub! Let me know if you need further help!
