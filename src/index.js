@@ -12,10 +12,11 @@ async function handleRequest(request) {
 
   try {
     if (path === '/courses') {
-      // Example: Fetch data from the KV store
-      const key = 'someKey'; // Replace with your desired key
+      // Replace with your desired KV key
+      const key = 'someKey';
       const kvUrl = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/storage/kv/namespaces/${KV_NAMESPACE_ID}/values/${key}`;
 
+      // Fetch data from Cloudflare KV via REST API
       const response = await fetch(kvUrl, {
         method: 'GET',
         headers: {
@@ -23,8 +24,9 @@ async function handleRequest(request) {
         },
       });
 
+      // Handle REST API response
       if (!response.ok) {
-        throw new Error(`Failed to fetch KV data: ${response.statusText}`);
+        throw new Error(`Failed to fetch KV data: ${response.status} - ${response.statusText}`);
       }
 
       const data = await response.text();
@@ -35,6 +37,7 @@ async function handleRequest(request) {
       return new Response('Endpoint not found', { status: 404 });
     }
   } catch (error) {
+    // Log the error for debugging
     console.error('Worker Error:', error);
     return new Response('Internal Server Error', { status: 500 });
   }
