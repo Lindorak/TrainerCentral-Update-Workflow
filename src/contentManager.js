@@ -1,5 +1,5 @@
 // contentManager.js
-import { trainerCentralRequest } from './trainercentral.js';
+import { trainerCentralRequest } from './trainerCentral.js';
 import { generateVersionLabel, storeVersionData, getVersionData } from './versionControl.js';
 
 const ORG_ID = "xxxx"; // Example org ID, or pass it in function arguments
