@@ -14,15 +14,15 @@ export const TrainerCentralAPI = {
     return data.token;
   },
 
-  async getCourses(token) {
-    const response = await fetch(`${BASE_URL}/courses`, {
+  async getCourses(token, accountId) {
+    const response = await fetch(`${BASE_URL}/accounts/${accountId}/courses`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.json();
   },
 
-  async getLessons(token, courseId) {
-    const response = await fetch(`${BASE_URL}/courses/${courseId}/lessons`, {
+  async getLessons(token, courseId, accountId) {
+    const response = await fetch(`${BASE_URL}/accounts/${accountId}/courses/${courseId}/lessons`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return response.json();
