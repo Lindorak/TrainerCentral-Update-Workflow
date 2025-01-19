@@ -1,34 +1,26 @@
-import { callOpenAI } from './openai.js';
-import { get_content, update_content, upload_content } from './contentManager.js';
+import { fetchCourses, fetchLessons } from './trainerCentral.js';
 
-export default {
-  async fetch(request, env, ctx) {
-    if (request.method === 'POST') {
-      const requestBody = await request.json();
-      
-      // 1) Determine user intent via callOpenAI
-      const parsedIntent = await callOpenAI(requestBody.userQuery);
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
 
-      // 2) Route to the correct function
-      let result;
-      if (parsedIntent.intent === 'get_content') {
-        result = await get_content(parsedIntent);
-      } else if (parsedIntent.intent === 'update_content') {
-        result = await update_content(parsedIntent);
-      } else if (parsedIntent.intent === 'upload_content') {
-        result = await upload_content(parsedIntent);
-      } else if (parsedIntent.intent === 'rollback') {
-        // call rollback logic
-        result = await rollbackToVersion(parsedIntent.versionLabel);
-      } else {
-        result = { message: "Unrecognized intent." };
-      }
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  const path = url.pathname;
 
-      return new Response(JSON.stringify(result), {
-        headers: { 'Content-Type': 'application/json' },
-      });
-    } else {
-      return new Response("Send a POST request.", { status: 400 });
-    }
+  if (path === '/courses') {
+    const courses = await fetchCourses();
+    return new Response(JSON.stringify(courses), { headers: { 'Content-Type': 'application/json' } });
   }
+
+  if (path.startsWith('/lessons')) {
+    const courseId = url.searchParams.get('courseId');
+    if (!courseId) {
+      return new Response('Course ID is required', { status: 400 });
+    }
+    const lessons = await fetchLessons(courseId);
+    return new Response(JSON.stringify(lessons), { headers: { 'Content-Type': 'application/json' } });
+  }
+
+  return new Response('Not Found', { status: 404 });
 }
