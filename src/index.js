@@ -13,7 +13,7 @@ async function handleRequest(request) {
   try {
     if (path === '/courses') {
       // Replace with your desired KV key
-      const key = 'someKey';
+      const key = 'someKey'; // Example key in your KV namespace
       const kvUrl = `https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/storage/kv/namespaces/${KV_NAMESPACE_ID}/values/${key}`;
 
       // Fetch data from Cloudflare KV via REST API
