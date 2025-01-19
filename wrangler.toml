@@ -1,10 +1,9 @@
 name = "trainercentral-update-workflow"
+type = "javascript"
 main = "src/index.js"
 
-compatibility_date = "2025-01-19"
-
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = true
 kv_namespaces = [
-  { binding = "KV_TCUK", id = "..." }
+  { binding = "KV_TCUK", id = "YOUR_KV_NAMESPACE_ID" }
 ]
-
-# ... other config ...
