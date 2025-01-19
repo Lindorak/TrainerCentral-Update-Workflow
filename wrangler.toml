@@ -4,6 +4,3 @@ main = "src/index.js"
 compatibility_date = "2025-01-19"
 
 workers_dev = true
-kv_namespaces = [
-  { binding = "KV_TCUK", id = "YOUR_KV_NAMESPACE_ID" }
-]
