@@ -2,7 +2,7 @@ const BASE_URL = 'https://accounts.zohocloud.ca/';
 
 export const TrainerCentralAPI = {
   async authenticate() {
-    const response = await fetch(`${BASE_URL}/oauth/v2/token`, {
+    const response = await fetch(`${BASE_URL}/oauth/v2/token?`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
