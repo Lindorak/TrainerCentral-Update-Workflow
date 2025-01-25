@@ -7,8 +7,8 @@ export const TrainerCentralAPI = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET
-        granttype: client_credentials
+        clientSecret: CLIENT_SECRET,
+        granttype: client_credentials,
         scope: TrainerCentral.courseapi.ALL,TrainerCentral.sessionapi.ALL
       })
     });
