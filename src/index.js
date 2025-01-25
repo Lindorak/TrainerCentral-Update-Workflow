@@ -5,7 +5,7 @@ addEventListener('fetch', event => {
 async function handleRequest(request) {
   const TRAINERCENTRAL_API_KEY = globalThis.TRAINERCENTRAL_API_KEY;
   const OPENAI_API_KEY = globalThis.OPENAI_API_KEY;
-  const TRAINERCENTRAL_BASE_URL = 'https://api.trainercentral.com/v1';
+  const TRAINERCENTRAL_BASE_URL = 'https://pathway-to-hope.trainercentral.ca/api/v4';
   const KV_NAMESPACE_ID = globalThis.KV_NAMESPACE_ID;
 
   const url = new URL(request.url);
