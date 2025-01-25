@@ -2,7 +2,7 @@
 import { trainerCentralRequest } from './trainerCentral.js';
 import { generateVersionLabel, storeVersionData, getVersionData } from './versionControl.js';
 
-const ORG_ID = "xxxx"; // Example org ID, or pass it in function arguments
+const ORG_ID = "110000955953"; // Example org ID, or pass it in function arguments
 
 /** 
  * 1) get_content
