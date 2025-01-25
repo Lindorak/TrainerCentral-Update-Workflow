@@ -1,4 +1,4 @@
-const BASE_URL = 'https://api.trainercentral.com/v1';
+const BASE_URL = 'https://pathway-to-hope.trainercentral.ca/api/v4';
 
 export const TrainerCentralAPI = {
   async authenticate() {
