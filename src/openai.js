@@ -1,13 +1,13 @@
 export async function callOpenAI(requestBody) {
   // requestBody might be the user’s raw query
-  const fetchResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+  const fetchResponse = await fetch("https://pathway-to-hope.trainercentral.ca/api/v4/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${OPENAI_API_KEY}`
     },
     body: JSON.stringify({
-      model: "gpt-3.5-turbo",
+      model: "gpt-4o",
       messages: [{ role: "user", content: requestBody }]
     })
   });
